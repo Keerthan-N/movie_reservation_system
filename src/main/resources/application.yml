@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: movie_reservation_api
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres?createDatabaseIfNotExist=true&useSSL=false
+    username: ${USERNAME}
+    password: ${PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8000
+  servlet.context-path: /movie-reservation-api
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+    tryItOutEnabled: true
+    filter: true
+  packages-to-scan: com.project.movie
