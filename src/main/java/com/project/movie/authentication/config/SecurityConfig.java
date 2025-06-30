@@ -31,9 +31,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("movie-reservation-api/swagger-ui").permitAll()
-                        .requestMatchers("movie-reservation-api/swagger-ui/**", "movie-reservation-api/swagger-ui/admin/register" ,"movie-reservation-api/swagger-ui/admin/register-multiple").hasAnyAuthority("ADMIN")
-                        .anyRequest().authenticated())
+                .requestMatchers("movie-reservation-api/swagger-ui/").permitAll()
+                .requestMatchers("movie-reservation-api/swagger-ui/**", "movie-reservation-api/swagger-ui/admin/register" ,"movie-reservation-api/swagger-ui/admin/register-multiple").hasAnyAuthority("ADMIN")
+                .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .build();
@@ -68,5 +68,4 @@ public class SecurityConfig {
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(List.of(daoAuthenticationProvider));
     }
-
 }

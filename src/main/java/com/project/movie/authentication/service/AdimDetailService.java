@@ -1,7 +1,6 @@
 package com.project.movie.authentication.service;
 
 import com.project.movie.authentication.repo.AdminRepo;
-import com.project.movie.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +18,6 @@ public class AdimDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return Optional.ofNullable(repo.findByUsername(username))
-                .orElseThrow(()-> new UserNotFoundException("Admin not found"));
+                .orElseThrow(()-> new UsernameNotFoundException("Admin not found"));
     }
 }

@@ -1,41 +1,29 @@
 package com.project.movie.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@Table(name = "movies")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Movies {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "movie_id",nullable = false)
-    private Long movieId;
-
-    @Column(name = "title",nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
     private String title;
-
-    @Column(name = "release_date",nullable = false)
-    private LocalDate releaseDate;
-
-    @Column(name = "duration",nullable = false)
-    private  int duration;
-
-    @Column(name = "movie_poster",nullable = false)
-    private String moviePoster;
-
-    @Column(name = "genre")
+    private String description;
+    private String posterImage;
     private String genre;
-
-    @Column(name = "language")
-    private String language;
+    private List<String> showTimings;
 
 }

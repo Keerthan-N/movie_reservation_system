@@ -1,4 +1,6 @@
 package com.project.movie.dto;
 
-public record UserDTO(String name , String password, String displayName,String email, String phoneNo) {
+import com.project.movie.enums.Roles;
+
+public record UserDTO(String username, String password, String displayName , Roles role) {
 }

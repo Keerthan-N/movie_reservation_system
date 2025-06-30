@@ -1,34 +1,26 @@
 package com.project.movie.controller;
 
+import com.project.movie.dto.MessageDTO;
 import com.project.movie.dto.UserDTO;
-import com.project.movie.dto.projection.UserProjection;
-import com.project.movie.dto.responses.CreatedSuccessfullyDTO;
-import com.project.movie.service.UsersService;
+import com.project.movie.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/user")
 @RequiredArgsConstructor
+@RequestMapping("/user")
 public class UserController {
 
-    private final UsersService service;
+    private final UserService service;
 
-    @PostMapping("/register")
-    public CreatedSuccessfullyDTO register(@RequestBody UserDTO user){
-        return service.register(user);
+    @PostMapping("/register-user")
+    public ResponseEntity<MessageDTO> register(@RequestBody UserDTO dto){
+        return ResponseEntity.ok(service.register(dto));
     }
 
-    @GetMapping("/get-users")
-    public List<UserProjection> getUsers(){
-        return service.getUsers();
+    @GetMapping("/login/{username}/{password}")
+    public ResponseEntity<MessageDTO> login(@PathVariable String username , @PathVariable String password){
+        return ResponseEntity.ok(service.login(username,password));
     }
-
-    @GetMapping("/get-user/{id}")
-    public UserProjection getUserById(@PathVariable Long id){
-        return service.getUserById(id);
-    }
-
 }
