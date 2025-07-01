@@ -2,6 +2,7 @@ package com.project.movie.controller;
 
 import com.project.movie.dto.MessageDTO;
 import com.project.movie.dto.MoviesDTO;
+import com.project.movie.model.Movies;
 import com.project.movie.service.MoviesService;
 import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,19 @@ public class MoviesController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.addMovies(moviesDTO));
     }
 
+    @GetMapping("/generate-seats")
+    public ResponseEntity<MessageDTO> generateSeats(){
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.generateSeats());
+    }
+
     @GetMapping("/get-movies")
     public ResponseEntity<List<MoviesDTO>> getMovies(){
         return ResponseEntity.status(HttpStatus.OK).body(service.getMovies());
+    }
+
+    @GetMapping("/get-movie-by-title")
+    public ResponseEntity<Movies> getMovies(@PathVariable String title){
+        return ResponseEntity.status(HttpStatus.OK).body(service.findByMovieTitle(title));
     }
 
     @PutMapping("/update-movie")
