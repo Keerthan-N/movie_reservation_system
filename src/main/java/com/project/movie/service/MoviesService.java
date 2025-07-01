@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ public class MoviesService {
 
     private final MoviesRepo repo;
 
-    public MessageDTO addMovies(MoviesDTO dto){
+    public MessageDTO addMovies(MoviesDTO dto) {
         if(!ObjectUtils.isEmpty(dto)){
             Movies movies = Movies.builder()
                     .title(dto.title())
@@ -41,9 +40,26 @@ public class MoviesService {
     }
 
     public MessageDTO updateMovie(MoviesDTO moviesDTO){
-        Optional.ofNullable(repo.findByMovieTitle(moviesDTO.title()))
-                .orElseThrow(()-> new UserNotFound("Movie not found"));
-
+        Movies movies = repo.findByTitle(moviesDTO.title())
+                .orElseThrow(() -> new UserNotFound("Movie not found"));
+        if(!ObjectUtils.isEmpty(movies)) {
+            if (moviesDTO.title() != null || moviesDTO.title() != "") {
+                movies.setTitle(moviesDTO.title());
+            }
+            if (moviesDTO.description() != null || moviesDTO.description() != "") {
+                movies.setDescription(moviesDTO.description());
+            }
+            if (moviesDTO.posterImage() != null || moviesDTO.posterImage() != "") {
+                movies.setPosterImage(moviesDTO.posterImage());
+            }
+            if (moviesDTO.genre() != null || moviesDTO.genre() != "") {
+                movies.setGenre(movies.getGenre());
+            }
+            if (moviesDTO.showTimings() != null || !moviesDTO.showTimings().isEmpty()) {
+                movies.setShowTimings(moviesDTO.showTimings());
+            }
+            repo.save(movies);
+        }
         return new MessageDTO(HttpStatus.ACCEPTED,moviesDTO.title()+" has been updated");
     }
 
@@ -51,6 +67,4 @@ public class MoviesService {
         repo.deleteByTitle(title);
         return new MessageDTO(HttpStatus.ACCEPTED,title+" has been removed");
     }
-
-
 }

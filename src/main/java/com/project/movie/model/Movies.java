@@ -25,5 +25,4 @@ public class Movies {
     private String posterImage;
     private String genre;
     private List<String> showTimings;
-
 }
