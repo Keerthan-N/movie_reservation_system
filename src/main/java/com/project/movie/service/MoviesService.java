@@ -63,7 +63,7 @@ public class MoviesService {
                 .orElseThrow(() -> new UserNotFound("Movie not found"));
     }
 
-    public MessageDTO updateMovie(MoviesDTO moviesDTO){
+    public MessageDTO   updateMovie(MoviesDTO moviesDTO){
         Movies movies = repo.findByTitle(moviesDTO.title())
                 .orElseThrow(() -> new UserNotFound("Movie not found"));
         if(!ObjectUtils.isEmpty(movies)) {
