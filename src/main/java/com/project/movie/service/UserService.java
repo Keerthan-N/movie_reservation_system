@@ -1,10 +1,12 @@
 package com.project.movie.service;
 
 import com.project.movie.dto.*;
+import com.project.movie.dto.projection.AvailableSeatsDTO;
 import com.project.movie.dto.projection.BookingConfrimedDTO;
 import com.project.movie.exceptions.UserNotFound;
 import com.project.movie.model.Booking;
 import com.project.movie.model.Movies;
+import com.project.movie.model.Seats;
 import com.project.movie.model.Users;
 import com.project.movie.repository.BookingRepo;
 import com.project.movie.repository.MoviesRepo;
@@ -20,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,4 +96,11 @@ public class UserService {
         return new MessageDTO(HttpStatus.ACCEPTED,movieTitle+" has been canceled");
     }
 
+    public AvailableSeatsDTO availableSeats(){
+        List<String> seatsAcutal = seatsRepo.findAll().stream().map(Seats::getSeatNumbers).toList();
+        List<Long> bookedIds = bookingRepo.findAll().stream().flatMap(b -> b.getSeatId().stream()).toList();
+        List<String> bookedSeats = seatsRepo.findSeatsById(bookedIds).stream().toList();
+        List<String> availableSeats = seatsAcutal.stream().filter(seat -> !bookedSeats.contains(seat)).toList();
+        return new AvailableSeatsDTO(availableSeats.size() , availableSeats);
+    }
 }

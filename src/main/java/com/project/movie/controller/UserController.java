@@ -4,6 +4,7 @@ import com.project.movie.dto.BookingDTO;
 import com.project.movie.dto.MessageDTO;
 import com.project.movie.dto.UserDTO;
 import com.project.movie.dto.UsersMoviesDTO;
+import com.project.movie.dto.projection.AvailableSeatsDTO;
 import com.project.movie.dto.projection.BookingConfrimedDTO;
 import com.project.movie.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,11 @@ public class UserController {
     @GetMapping("/get-movies")
     public ResponseEntity<List<UsersMoviesDTO>> getMovies(){
         return ResponseEntity.ok(service.getMoviesList());
+    }
+
+    @GetMapping("/get-available-seats")
+    public ResponseEntity<AvailableSeatsDTO> availableSeats(){
+       return ResponseEntity.ok(service.availableSeats());
     }
 
     @PostMapping("/book-tickets/{username}")
