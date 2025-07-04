@@ -8,8 +8,8 @@ spring:
     password: ${PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: none
+    show-sql: false
 
 server:
   port: 8000

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,32 +60,32 @@ public class MoviesService {
     }
 
     public Movies findByMovieTitle(String title){
-        return Optional.ofNullable(repo.findByTitle(title)).get()
+        return repo.findByTitle(title)
                 .orElseThrow(() -> new UserNotFound("Movie not found"));
     }
 
-    public MessageDTO   updateMovie(MoviesDTO moviesDTO){
-        Movies movies = repo.findByTitle(moviesDTO.title())
+    public MessageDTO updateMovie(String title,MoviesDTO moviesDTO){
+        Movies movies = repo.findByTitle(title)
                 .orElseThrow(() -> new UserNotFound("Movie not found"));
         if(!ObjectUtils.isEmpty(movies)) {
-            if (moviesDTO.title() != null || moviesDTO.title() != "") {
+            if (StringUtils.hasLength(moviesDTO.title())) {
                 movies.setTitle(moviesDTO.title());
             }
-            if (moviesDTO.description() != null || moviesDTO.description() != "") {
+            if (StringUtils.hasLength(moviesDTO.description())) {
                 movies.setDescription(moviesDTO.description());
             }
-            if (moviesDTO.posterImage() != null || moviesDTO.posterImage() != "") {
+            if (StringUtils.hasLength(moviesDTO.posterImage())) {
                 movies.setPosterImage(moviesDTO.posterImage());
             }
-            if (moviesDTO.genre() != null || moviesDTO.genre() != "") {
-                movies.setGenre(movies.getGenre());
+            if (StringUtils.hasLength(moviesDTO.genre())) {
+                movies.setGenre(moviesDTO.genre());
             }
-            if (moviesDTO.showTimings() != null || !moviesDTO.showTimings().isEmpty()) {
+            if (!ObjectUtils.isEmpty(moviesDTO.showTimings())) {
                 movies.setShowTimings(moviesDTO.showTimings());
             }
             repo.save(movies);
         }
-        return new MessageDTO(HttpStatus.ACCEPTED,moviesDTO.title()+" has been updated");
+        return new MessageDTO(HttpStatus.ACCEPTED,title+" has been updated");
     }
 
     public MessageDTO deleteMovie(String title){

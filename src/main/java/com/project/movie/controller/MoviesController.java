@@ -33,14 +33,14 @@ public class MoviesController {
         return ResponseEntity.status(HttpStatus.OK).body(service.getMovies());
     }
 
-    @GetMapping("/get-movie-by-title")
+    @GetMapping("/get-movie-by-title/{title}")
     public ResponseEntity<Movies> getMovies(@PathVariable String title){
         return ResponseEntity.status(HttpStatus.OK).body(service.findByMovieTitle(title));
     }
 
-    @PutMapping("/update-movie")
-    public ResponseEntity<MessageDTO> updateMovies(@RequestBody MoviesDTO moviesDTO){
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.updateMovie(moviesDTO));
+    @PutMapping("/update-movie/{title}")
+    public ResponseEntity<MessageDTO> updateMovies(@PathVariable String title ,@RequestBody MoviesDTO moviesDTO){
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.updateMovie(title,moviesDTO));
     }
 
     @DeleteMapping("/delete-movie/{title}")

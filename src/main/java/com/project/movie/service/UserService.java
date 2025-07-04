@@ -1,6 +1,7 @@
 package com.project.movie.service;
 
 import com.project.movie.dto.*;
+import com.project.movie.dto.projection.AdminWatchDTO;
 import com.project.movie.dto.projection.AvailableSeatsDTO;
 import com.project.movie.dto.projection.BookingConfrimedDTO;
 import com.project.movie.exceptions.UserNotFound;
@@ -20,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.awt.print.Book;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +67,7 @@ public class UserService {
     }
 
     public BookingConfrimedDTO bookTickets(String username , BookingDTO bookingDTO){
+        LocalDate date = ObjectUtils.isEmpty(bookingDTO.date()) ? LocalDate.now() : bookingDTO.date();
         Long userId = repo.findByUsername(username)
                 .map(Users::getId)
                 .orElseThrow(()-> new UserNotFound("User not found"));
@@ -73,15 +78,12 @@ public class UserService {
         Booking booking = Booking.builder()
                 .userId(userId)
                 .movieId(movieId)
+                .date(date)
                 .showTime(bookingDTO.showTime())
-                .seatId(seatIds).build();
+                .seatId(seatIds)
+                .price(bookingDTO.price()).build();
         bookingRepo.save(booking);
-        return new BookingConfrimedDTO(HttpStatus.CREATED,
-                "Bookig Confrimed",
-                bookingDTO.movieTitle()
-                ,seatIds.size(),
-                bookingDTO.seatNumbers(),
-                bookingDTO.showTime());
+        return new BookingConfrimedDTO("Bookig Confrimed", bookingDTO.movieTitle(),seatIds.size(), bookingDTO.seatNumbers(), bookingDTO.showTime(), date);
     }
 
     @Transactional
@@ -102,5 +104,18 @@ public class UserService {
         List<String> bookedSeats = seatsRepo.findSeatsById(bookedIds).stream().toList();
         List<String> availableSeats = seatsAcutal.stream().filter(seat -> !bookedSeats.contains(seat)).toList();
         return new AvailableSeatsDTO(availableSeats.size() , availableSeats);
+    }
+
+    public List<AdminWatchDTO> getBookingDetails(){
+        return bookingRepo.findAll().stream().map( data -> {
+            Long bookingId = data.getBookingId();
+            String movieTitle = moviesRepo.findById(data.getMovieId()).get().getTitle();
+            List<String> bookedSeatsId = seatsRepo.findSeatsById(data.getSeatId());
+            String showtime = data.getShowTime();
+            String userName = repo.findById(data.getUserId()).get().getUsername();
+            LocalDate date = data.getDate();
+            double price = data.getPrice();
+            return new AdminWatchDTO(bookingId,movieTitle,bookedSeatsId,showtime,userName,date,price);
+        }).toList();
     }
 }
