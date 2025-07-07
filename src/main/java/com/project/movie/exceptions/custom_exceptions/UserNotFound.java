@@ -1,4 +1,4 @@
-package com.project.movie.exceptions;
+package com.project.movie.exceptions.custom_exceptions;
 
 public class UserNotFound extends RuntimeException{
     public UserNotFound() {

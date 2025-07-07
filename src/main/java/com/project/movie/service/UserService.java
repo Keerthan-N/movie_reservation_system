@@ -4,7 +4,8 @@ import com.project.movie.dto.*;
 import com.project.movie.dto.projection.AdminWatchDTO;
 import com.project.movie.dto.projection.AvailableSeatsDTO;
 import com.project.movie.dto.projection.BookingConfrimedDTO;
-import com.project.movie.exceptions.UserNotFound;
+import com.project.movie.exceptions.custom_exceptions.CancelError;
+import com.project.movie.exceptions.custom_exceptions.UserNotFound;
 import com.project.movie.model.Booking;
 import com.project.movie.model.Movies;
 import com.project.movie.model.Seats;
@@ -13,7 +14,6 @@ import com.project.movie.repository.BookingRepo;
 import com.project.movie.repository.MoviesRepo;
 import com.project.movie.repository.SeatsRepo;
 import com.project.movie.repository.UserRepo;
-import jakarta.persistence.Table;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,12 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.awt.print.Book;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +36,13 @@ public class UserService {
     private final MoviesRepo moviesRepo;
     private final SeatsRepo seatsRepo;
     private final BookingRepo bookingRepo;
+
+    private Long checkRemainHours(String time){
+        String[] splitTime = time.trim().replaceAll("(?i)[a-z ]", "").split(":");
+        LocalTime targetTime = LocalTime.of(Integer.parseInt(splitTime[0]),Integer.parseInt(splitTime[1]));
+        LocalTime currentTime = LocalTime.now();
+        return ChronoUnit.HOURS.between(currentTime,targetTime);
+    }
 
     public MessageDTO register(UserDTO dto){
         if(!ObjectUtils.isEmpty(dto)){
@@ -94,8 +101,13 @@ public class UserService {
         Long movieId = moviesRepo.findByTitle(movieTitle)
                 .map(Movies::getId)
                 .orElseThrow(()-> new UserNotFound("Movie not found"));
-        bookingRepo.deleteByUserIdAndMovieId(userId,movieId);
-        return new MessageDTO(HttpStatus.ACCEPTED,movieTitle+" has been canceled");
+       Booking booking = bookingRepo.findByUserIdAndMovieId(userId,movieId);
+        if(booking.getDate().equals(LocalDate.now())){
+            if (checkRemainHours(booking.getShowTime()) <= 4)
+                throw new CancelError("Cannot cancel the ticket as the movie is booked for today");
+        }
+       bookingRepo.deleteByUserIdAndMovieId(userId,movieId);
+       return new MessageDTO(HttpStatus.ACCEPTED,movieTitle+" has been canceled");
     }
 
     public AvailableSeatsDTO availableSeats(){
@@ -117,5 +129,9 @@ public class UserService {
             double price = data.getPrice();
             return new AdminWatchDTO(bookingId,movieTitle,bookedSeatsId,showtime,userName,date,price);
         }).toList();
+    }
+
+    public MessageDTO getRevenue(LocalDate date){
+        return new MessageDTO(HttpStatus.OK,"Revenue for todays booking: "+bookingRepo.findRevenue(date));
     }
 }

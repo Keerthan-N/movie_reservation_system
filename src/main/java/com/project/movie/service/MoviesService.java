@@ -2,7 +2,7 @@ package com.project.movie.service;
 
 import com.project.movie.dto.MessageDTO;
 import com.project.movie.dto.MoviesDTO;
-import com.project.movie.exceptions.UserNotFound;
+import com.project.movie.exceptions.custom_exceptions.UserNotFound;
 import com.project.movie.model.Movies;
 import com.project.movie.model.Seats;
 import com.project.movie.repository.MoviesRepo;
@@ -15,7 +15,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

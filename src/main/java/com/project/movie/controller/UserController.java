@@ -51,8 +51,4 @@ public class UserController {
         return ResponseEntity.ok(service.cancelTickets(username,movieTitle));
     }
 
-    @GetMapping("/get-booking-details")
-    public ResponseEntity<List<AdminWatchDTO>> getBookingDetails(){
-        return ResponseEntity.ok(service.getBookingDetails());
-    }
 }
