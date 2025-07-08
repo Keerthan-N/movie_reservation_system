@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record AdminWatchDTO(
-        Long bookingId,
+        String bookingId,
         String movieTitle,
         List<String> seatNumber,
         String showtime,

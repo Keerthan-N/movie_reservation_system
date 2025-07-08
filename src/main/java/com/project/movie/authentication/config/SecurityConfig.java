@@ -31,8 +31,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("movie-reservation-api/swagger-ui/").permitAll()
-                .requestMatchers("movie-reservation-api/swagger-ui/**", "movie-reservation-api/swagger-ui/admin/register" ,"movie-reservation-api/swagger-ui/admin/register-multiple").hasAnyAuthority("ADMIN")
+                .requestMatchers("/swagger-ui/**","/v3/api-docs/**","/swagger-ui.html").permitAll()
+                .requestMatchers("/movie-reservation-api/swagger-ui/**",
+                        "/movie-reservation-api/swagger-ui/admin/register" ,
+                        "/movie-reservation-api/swagger-ui/admin/register-multiple",
+                        "/movie-reservation-api/swagger-ui/admin/get-booking-details",
+                        "/movie-reservation-api/swagger-ui/admin/get-revenue/*").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())

@@ -1,5 +1,6 @@
 package com.project.movie.service;
 
+import com.google.zxing.WriterException;
 import com.project.movie.dto.*;
 import com.project.movie.dto.projection.AdminWatchDTO;
 import com.project.movie.dto.projection.AvailableSeatsDTO;
@@ -14,6 +15,8 @@ import com.project.movie.repository.BookingRepo;
 import com.project.movie.repository.MoviesRepo;
 import com.project.movie.repository.SeatsRepo;
 import com.project.movie.repository.UserRepo;
+import com.project.movie.service.service_impl.AlphaCodeGenerator;
+import com.project.movie.service.service_impl.PdfGeneratorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,10 +24,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +40,7 @@ public class UserService {
     private final MoviesRepo moviesRepo;
     private final SeatsRepo seatsRepo;
     private final BookingRepo bookingRepo;
+    private final PdfGeneratorService pdfGeneratorService;
 
     private Long checkRemainHours(String time){
         String[] splitTime = time.trim().replaceAll("(?i)[a-z ]", "").split(":");
@@ -74,6 +79,7 @@ public class UserService {
     }
 
     public BookingConfrimedDTO bookTickets(String username , BookingDTO bookingDTO){
+        AlphaCodeGenerator alphaCodeGenerator = new AlphaCodeGenerator();
         LocalDate date = ObjectUtils.isEmpty(bookingDTO.date()) ? LocalDate.now() : bookingDTO.date();
         Long userId = repo.findByUsername(username)
                 .map(Users::getId)
@@ -82,7 +88,9 @@ public class UserService {
                 .map(Movies::getId)
                 .orElseThrow(()-> new UserNotFound("Movie not found"));
         List<Long> seatIds = seatsRepo.findBySeatNumbers(bookingDTO.seatNumbers());
+        String bookingId = alphaCodeGenerator.generateCode();
         Booking booking = Booking.builder()
+                .bookingId(bookingId)
                 .userId(userId)
                 .movieId(movieId)
                 .date(date)
@@ -120,7 +128,7 @@ public class UserService {
 
     public List<AdminWatchDTO> getBookingDetails(){
         return bookingRepo.findAll().stream().map( data -> {
-            Long bookingId = data.getBookingId();
+            String bookingId = data.getBookingId();
             String movieTitle = moviesRepo.findById(data.getMovieId()).get().getTitle();
             List<String> bookedSeatsId = seatsRepo.findSeatsById(data.getSeatId());
             String showtime = data.getShowTime();
@@ -132,6 +140,16 @@ public class UserService {
     }
 
     public MessageDTO getRevenue(LocalDate date){
-        return new MessageDTO(HttpStatus.OK,"Revenue for todays booking: "+bookingRepo.findRevenue(date));
+        return new MessageDTO(HttpStatus.OK,"Revenue for "+date+" booking: ₹"+bookingRepo.findRevenue(date));
+    }
+
+    public void downloadTicket(OutputStream outputStream ,String username, String title) throws IOException, WriterException {
+        Long userId = repo.findByUsername(username)
+                .map(Users::getId)
+                .orElseThrow(()-> new UserNotFound("User not found"));
+        Long movieId = moviesRepo.findByTitle(title)
+                .map(Movies::getId)
+                .orElseThrow(()-> new UserNotFound("Movie not found"));
+        pdfGeneratorService.exportPdf(outputStream,userId,movieId);
     }
 }
